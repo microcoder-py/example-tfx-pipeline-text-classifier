@@ -33,7 +33,9 @@ def _get_serve_tf_examples_fn(model, tf_transform_output):
 
   return serve_tf_examples_fn
 
-
+#This function just builds a keras model
+#You can change it any way you see fit
+#This is the place you can define how you want your network structured
 def build_keras_model() -> keras.Model:
 
   model = keras.Sequential([
@@ -55,6 +57,10 @@ def build_keras_model() -> keras.Model:
   model.summary(print_fn=absl.logging.info)
   return model
 
+#This function is used to define how data will be fed to the network for training
+#You can either use data accessors, or write your own tf.data pipelines
+#The file pattern gives you a list of TFRecord files, just decompress
+#the files with GZIP, and use it with tf.data
 def _input_fn(file_pattern: List[Text],
               data_accessor: DataAccessor,
               tf_transform_output: tft.TFTransformOutput,
@@ -69,22 +75,27 @@ def _input_fn(file_pattern: List[Text],
 
   return dataset
 
+#This function defines all steps for training the model. 
+#If you want to use any parallel distribution strategies, 
+#use the strategy here before compiling the model
 def run_fn(fn_args: FnArgs):
   
   tf_transform_output = tft.TFTransformOutput(fn_args.transform_output)  
+  
+  _batch_size = #specify batch size
   
   train_set = _input_fn(
       fn_args.train_files,
       fn_args.data_accessor,
       tf_transform_output,
-      batch_size = 2
+      batch_size = _batch_size
   )
 
   eval_dataset = _input_fn(
     fn_args.eval_files,
     fn_args.data_accessor,
     tf_transform_output,
-    batch_size = 2
+    batch_size = _batch_size
   )
 
   model = build_keras_model()
@@ -99,6 +110,9 @@ def run_fn(fn_args: FnArgs):
     validation_steps=fn_args.eval_steps
   )
 
+  #This is simply a serving signature, which specifies what happens when someone
+  #serves the Model. It basically strips the label away, and only retains the text
+  #for inference instead of training
   signatures = {
     'serving_default':
       _get_serve_tf_examples_fn(model,tf_transform_output).get_concrete_function(
@@ -110,4 +124,5 @@ def run_fn(fn_args: FnArgs):
       )
   }
 
+  #Save the model in the place you want to, and just load it when you want to serve
   model.save(fn_args.serving_model_dir, save_format='tf', signatures = signatures)
