@@ -28,8 +28,19 @@ If you want to change the model you are making use of, go to the file ``trainer_
 Defining how to run the training session, including parallelisation, data ingestion options etc can be done by modifying the ``trainer_file.py`` module
 
 ## Execution
-After adding all the global variables, and downloading data, creating directories for each requirement, just run the file ``pipeline.py`` with the command
+After adding all the global variables, and downloading data, creating directories for each requirement, just run the file ``pipeline.py`` with the command. Python3 is recommended
 
 ``>>python3 pipeline.py``
 
 It will automatically trigger the pipeline execution
+
+Please make sure the following libraries are installed:
+
+1. TensorFlow
+``pip3 install tensorflow``
+
+2. TensorFlow Extended
+``pip3 install tfx``
+
+3. TFX BSL
+``pip3 install tfx-bsl``
