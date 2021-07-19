@@ -8,6 +8,14 @@ _serving_dir = #path
 _num_train_steps = #add number
 _num_eval_steps = #add number
 
+_pipeline_name = #name the pipeline
+_pipeline_root = #specify location of pipeline storage
+_metadata_root = #specify location for sqlite db that will facilitate metadata storage
+_beam_pipeline_args = [
+    '--direct_running_mode=multi_processing',
+    '--direct_num_workers=0',
+]
+
 #Example Generator
 import tfx
 from tfx.components import CsvExampleGen
@@ -71,3 +79,30 @@ pusher = Pusher(
       push_destination=pusher_pb2.PushDestination(
           filesystem=pusher_pb2.PushDestination.Filesystem(
               base_directory=_serving_dir)))
+
+if __name__ == "__main__":
+  
+    from tfx.orchestration import pipeline
+    from tfx.orchestration.beam.beam_dag_runner import BeamDagRunner
+    
+    
+
+    pipeline_components = [
+      example_gen,
+      statistics_gen,
+      schema_gen,
+      transform,
+      trainer,
+      pusher
+    ]
+    
+    tfx_pipeline = pipeline.Pipeline(
+        pipeline_name = _pipeline_name,
+        pipeline_root = _pipeline_root,
+        components = pipeline_components,
+        metadata_connection_config = metadata.sqlite_metadata_connection_config(metadata_path)
+        enable_cache = False,
+        beam_pipeline_args = _beam_pipeline_args
+    )
+    
+    BeamDagRunner().run(tfx_pipeline)
