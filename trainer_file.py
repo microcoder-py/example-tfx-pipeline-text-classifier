@@ -71,11 +71,7 @@ def _input_fn(file_pattern: List[Text],
 
 def run_fn(fn_args: FnArgs):
   
-  tf_transform_output = tft.TFTransformOutput(fn_args.transform_output)
-
-  tf.print(tf_transform_output)
-  tft_layer = tf_transform_output.transform_features_layer()
-  print(tft_layer)
+  tf_transform_output = tft.TFTransformOutput(fn_args.transform_output)  
   
   train_set = _input_fn(
       fn_args.train_files,
