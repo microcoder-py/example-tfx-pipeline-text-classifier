@@ -1,6 +1,6 @@
 import tensorflow as tf
 import tfx
-import tfx-bsl
+import tfx_bsl
 #Define global parameters in the  beginning itself to avoid confusion towards the end
 _data_path = #add path to directory which contains all the training files
 _serving_dir = #add path to directory where you will be storing the final trained model
