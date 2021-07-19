@@ -41,11 +41,10 @@ def tokenizer(text):
   dense_padded = tf.pad(convert_to_dense, padding_config, 'CONSTANT', -1)
   
   #Now we take a slice that gives us the first max length characters. This is our final sentence
-  dense_max_len = tf.slice(dense_padded, [0,0], [-1, _max])
-  
-  #The reason we are adding the 1 here is because TFT does not recognize OOV tokens by default as 0
+  #The reason we are padding the -1 here is because TFT does not recognize OOV tokens by default as 0
   #So we simply tokenize the whole vocabulary, and then add 1 to all of them so that if any of them is OOV,
   #it is recognised as 0 
+  dense_max_len = tf.slice(dense_padded, [0,0], [-1, _max])
   dense_max_len += 1
 
   return dense_max_len
