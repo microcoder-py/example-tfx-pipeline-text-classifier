@@ -30,7 +30,7 @@ output_config = example_gen_pb2.Output(
     )
 )
 
-example_gen = CsvExampleGen(input_base="/data_root", output_config=output_config)
+example_gen = CsvExampleGen(input_base=_data_root, output_config=output_config)
 
 #STATISTICS GENERATOR
 #This component generates numbers to understand possible skew in data, and other factors
