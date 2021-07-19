@@ -46,3 +46,20 @@ Please make sure the following libraries are installed:
 
 3. TFX BSL
 ``pip3 install tfx-bsl``
+
+### Interactive Execution
+
+At times we want to see things executing component by component instead of running the whole thing at once, maybe for purposes of debugging or simply testing each item separately
+
+To achieve this, we can make use of the module ``InteractiveContext`` available by using the following import
+``from tfx.orchestration.experimental.interactive.interactive_context import InteractiveContext``
+
+Once imported, the module needs to be loaded separately by using the following command for any iPython notebook
+``%load_ext tfx.orchestration.experimental.interactive.notebook_extensions.skip``
+
+Then, we need to create an ``InteractiveContext`` object with
+``context = InteractiveContext()``
+
+And to run any of the components, simply use the ``context.run(Component)`` command. Please note that the order of execution remains the same, if any component depends on another component, you need to execute the first component before running the dependent component 
+
+
