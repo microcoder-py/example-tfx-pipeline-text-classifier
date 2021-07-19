@@ -30,6 +30,6 @@ Defining how to run the training session, including parallelisation, data ingest
 ## Execution
 After adding all the global variables, and downloading data, creating directories for each requirement, just run the file ``pipeline.py`` with the command
 
-``python3 pipeline.py``
+``>>python3 pipeline.py``
 
 It will automatically trigger the pipeline execution
