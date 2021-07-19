@@ -19,7 +19,6 @@ _embedding_dims = #add required embedding dimensions for the vocabulary
 
 
 def _get_serve_tf_examples_fn(model, tf_transform_output):
-  """Returns a function that parses a serialized tf.Example."""
   model.tft_layer = tf_transform_output.transform_features_layer()
 
   @tf.function
