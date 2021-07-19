@@ -9,7 +9,7 @@ _vocab_size = #add number to define total vocabulary size
 _max = #add number for max length of any sentence
 
 #This function helps TFX know which label is input, and which is output. 
-#If we have a feature which is an input, we rename it to feature_xf_input and it is mapped to the input feature_xf
+#If we have a feature which is an input, we rename it to feature_xf_input and it is mapped to the input layer named feature_xf
 #If we have a feature that is an output, we only append _xf, and it is used as output for the output labelled feature_xf
 def _transformed_name(key, is_input = False):
   if (is_input == True):
