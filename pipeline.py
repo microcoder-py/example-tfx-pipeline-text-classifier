@@ -1,6 +1,5 @@
 import tensorflow as tf
-!pip install tfx
-!pip install tfx-bsl
+import tfx
 
 #Define global parameters in the  beginning itself to avoid confusion towards the end
 _data_path = #add path to directory which contains all the training files
@@ -19,7 +18,6 @@ _beam_pipeline_args = [
 #EXAMPLE GENERATOR
 #This pipeline component defines how we are supposed to ingest data given several files
 #We can use it to define how we are ingesting data as well, how we split it, etc
-import tfx
 from tfx.components import CsvExampleGen
 from tfx.proto import example_gen_pb2
 
