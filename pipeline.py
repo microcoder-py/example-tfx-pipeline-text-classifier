@@ -3,8 +3,8 @@ import tensorflow as tf
 !pip install tfx-bsl
 
 #Define global parameters in the  beginning itself to avoid confusion towards the end
-_data_path = #path
-_serving_dir = #path
+_data_path = #add path to directory which contains all the training files
+_serving_dir = #add path to directory where you will be storing the final trained model
 _num_train_steps = #add number
 _num_eval_steps = #add number
 
@@ -16,7 +16,9 @@ _beam_pipeline_args = [
     '--direct_num_workers=0',
 ]
 
-#Example Generator
+#EXAMPLE GENERATOR
+#This pipeline component defines how we are supposed to ingest data given several files
+#We can use it to define how we are ingesting data as well, how we split it, etc
 import tfx
 from tfx.components import CsvExampleGen
 from tfx.proto import example_gen_pb2
@@ -32,19 +34,28 @@ output_config = example_gen_pb2.Output(
 
 example_gen = CsvExampleGen(input_base="/data_root", output_config=output_config)
 
-#Statistics Generation, optional
+#STATISTICS GENERATOR
+#This component generates numbers to understand possible skew in data, and other factors
+#This is optional. If you do not want to use it, remove it as an argument whenever it is being
+#consumed by future components
 from tfx.components import StatisticsGen
 
 statistics_gen = StatisticsGen(examples=example_gen.outputs['examples'])
 
-#Schema Generation, optional
+#SCHEMA GENERATOR
+#This component defines the schema for the data
+#This is optional. If you do not want to use it, remove it as an argument whenever it is being
+#consumed by future components
 from tfx.components import SchemaGen
 
 schema_gen = SchemaGen(
     statistics = statistics_gen.outputs['statistics'], infer_feature_shape = True
 )
 
-#Transform component, need to mention which file will be used for transforming
+#TRANSFORM COMPONENT
+#This component carries out all transformations needed in preprocessing for the whole batch
+#We need to provide it a python file that contains a function named preprocessing_fn
+#The component will use the function to execute preprocessing as needed
 from tfx.components import Transform
 
 transform_file = 'transform_file.py'
@@ -55,9 +66,14 @@ transform = Transform(
     module_file = transform_file
 )
 
-#Trainer module, need to specify what file we are using to execute the training functions
+#TRAINER MODULE
+#We need to provide it a python file that contains a run_fn, which defines how it will be 
+#training the module
+#The output is a trained model, which needs to be saved at a location the pusher component can use
 from tfx.components import Trainer
 from tfx.proto import trainer_pb2
+
+trainer_file = "trainer_file.py"
 
 trainer = Trainer(
     module_file = trainer_file,
@@ -68,9 +84,8 @@ trainer = Trainer(
     eval_args = trainer_pb2.EvalArgs(num_steps = _num_eval_steps)
 )
 
-#Pusher component
-from tfx.types.standard_artifacts import Model
-from tfx.types.standard_artifacts import ModelBlessing
+#PUSHER COMPONENT
+#This defines how we will be pushing the saved model into serving 
 from tfx.components import Pusher
 from tfx.proto import pusher_pb2
 
@@ -85,8 +100,7 @@ if __name__ == "__main__":
     from tfx.orchestration import pipeline
     from tfx.orchestration.beam.beam_dag_runner import BeamDagRunner
     
-    
-
+    #Here we define the components involved in the pipeline
     pipeline_components = [
       example_gen,
       statistics_gen,
@@ -96,6 +110,7 @@ if __name__ == "__main__":
       pusher
     ]
     
+    #We build a pipeline with our options
     tfx_pipeline = pipeline.Pipeline(
         pipeline_name = _pipeline_name,
         pipeline_root = _pipeline_root,
@@ -105,4 +120,6 @@ if __name__ == "__main__":
         beam_pipeline_args = _beam_pipeline_args
     )
     
+    #We execute the pipeline
+    #The pipeline can be executed component by component using the TFX Interactive Context 
     BeamDagRunner().run(tfx_pipeline)
