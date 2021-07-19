@@ -20,7 +20,7 @@ You can really use any data that is in a CSV format, with columns of ``label, te
 
 If you want to use a different file format, you will need to make respective changes to the ``ExampleGen`` component in the file ``pipeline.py``
 
-If you wish to carry out any more preprocessing, kindly add the needed steps in the function ``preprocessing_fn()`` in the file ``transform_file.py`` (e.g. stripping away HTML tags, reducing punctuation)
+If you wish to carry out any more preprocessing, add the needed steps in the function ``preprocessing_fn()`` in the file ``transform_file.py`` (e.g. stripping away HTML tags, reducing punctuation, one hot encoding)
 
 Just save the file in a directory, and specify the location of the directory in the variable ``_data_root`` in the file ``pipeline.py``
 
