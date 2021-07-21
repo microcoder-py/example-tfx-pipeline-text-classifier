@@ -1,7 +1,9 @@
 # Example TFX Pipeline for Text Classification
 
+## Who is this for?
 While trying to build my own production ML pipeline, I was unable to understand what was happening under the hood. Found a few examples, but none of them clear enough, so I decided to build a couple of my own so I and anybody else who may need it can use them.
 
+## The Basics
 The fundamentals of this are fairly simple. We have several steps in building a model
 
 1. Find the data
