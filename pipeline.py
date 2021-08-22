@@ -82,6 +82,50 @@ trainer = Trainer(
     eval_args = trainer_pb2.EvalArgs(num_steps = _num_eval_steps)
 )
 
+from tfx.dsl.components.common import resolver
+from tfx.dsl.experimental import latest_blessed_model_resolver
+#MODEL RESOLVER
+# This determines which model, compared with all the other models built using this pipeline
+# is best suited for usage
+model_resolver = resolver.Resolver(
+    strategy_class=latest_blessed_model_resolver.LatestBlessedModelResolver,
+    model=Channel(type=Model),
+    model_blessing=Channel(
+        type=ModelBlessing)).with_id('latest_blessed_model_resolver'
+                                    )
+import absl
+import tensorflow_model_analysis as tfma
+#To evaluate the model quality, we use the eval config
+eval_config = tfma.EvalConfig(
+    model_specs=[tfma.ModelSpec(label_key='label')],
+        slicing_specs=[tfma.SlicingSpec()],
+        metrics_specs=[
+          tfma.MetricsSpec(metrics=[
+              tfma.MetricConfig(
+                  class_name='BinaryAccuracy',
+                  threshold=tfma.MetricThreshold(
+                      value_threshold=tfma.GenericValueThreshold(
+                          # Increase this threshold when training on complete
+                          # dataset.
+                          lower_bound={'value': 0.01}),
+                      # Change threshold will be ignored if there is no
+                      # baseline model resolved from MLMD (first run).
+                      change_threshold=tfma.GenericChangeThreshold(
+                          direction=tfma.MetricDirection.HIGHER_IS_BETTER,
+                          absolute={'value': -1e-2})))
+          ])
+      ])
+
+from tfx.components import Evaluator
+#EVALUATOR COMPONENT
+# This carries out the actual evaluation basis the model resolver as well as eval config
+evaluator = Evaluator(
+    examples=example_gen.outputs['examples'],
+    model=trainer.outputs['model'],
+    baseline_model=model_resolver.outputs['model'],
+    eval_config=eval_config
+)
+
 #PUSHER COMPONENT
 #This defines how we will be pushing the saved model into serving 
 from tfx.components import Pusher
@@ -105,6 +149,7 @@ if __name__ == "__main__":
       schema_gen,
       transform,
       trainer,
+      evaluator, 
       pusher
     ]
     
